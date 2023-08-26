@@ -1,7 +1,7 @@
 from potassium import Potassium, Request, Response
 from stable_whisper import modify_model 
 from pytube import YouTube
-import torch, whisper, os, base64, urllib.request
+import torch, whisper, os, base64, urllib.request, json
 
 
 
@@ -41,7 +41,7 @@ def handler(context: dict, request: Request) -> Response:
 
 
     return Response(
-        json = {"outputs": result}, 
+        json = {"outputs": json.dumps(result)}, 
         status=200
     )
 
