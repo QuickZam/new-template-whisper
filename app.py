@@ -34,7 +34,8 @@ def handler(context: dict, request: Request) -> Response:
         yt = YouTube(link)
         path = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first().download()
 
-    translate_options = dict(task="translate", suppress_silence=True, ts_num=16, lower_quantile=0.05, lower_threshold=0.1)
+    # translate_options = dict(task="translate", suppress_silence=True, ts_num=16, lower_quantile=0.05, lower_threshold=0.1)4
+    translate_options = dict(task="translate",max_initial_timestamp=None)
     result = model.transcribe(path, **translate_options)
     os.remove(path)
 
