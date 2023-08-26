@@ -12,7 +12,7 @@ app = Potassium("my_app")
 @app.init
 def init():
     model = whisper.load_model("large-v1")
-    modify_model(model)
+    # modify_model(model)
    
     context = {
         "model": model
@@ -46,7 +46,11 @@ def handler(context: dict, request: Request) -> Response:
 
     os.remove(path)
 
-    return result 
+    return Response(
+        json = {"outputs": result}, 
+        status=200
+    )
+
 
 if __name__ == "__main__":
     app.serve()
