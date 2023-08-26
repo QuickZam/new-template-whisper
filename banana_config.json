@@ -1,0 +1,14 @@
+{
+    "name": "",
+    "category": "",
+    "example_input": {
+        "link": "https://www.youtube.com/watch?v=NbWBoBFnJn4"
+    },
+    "example_output": {
+        "outputs":[
+                {"text": "all good" }
+
+        ]
+    },
+    "version": "1"
+}
