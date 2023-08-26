@@ -40,7 +40,7 @@ def handler(context: dict, request: Request) -> Response:
 
 
     return Response(
-        json = {"outputs": result}, 
+        json = {"outputs": result[0]}, 
         status=200
     )
 
