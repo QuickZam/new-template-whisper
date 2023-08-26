@@ -12,7 +12,7 @@ app = Potassium("my_app")
 @app.init
 def init():
     model = whisper.load_model("large-v1")
-    # modify_model(model)
+    modify_model(model)
    
     context = {
         "model": model
@@ -40,6 +40,7 @@ def handler(context: dict, request: Request) -> Response:
     # translate_options = dict(task="translate", suppress_silence=True, ts_num=16, lower_quantile=0.05, lower_threshold=0.1)4
     translate_options = dict(task="translate",max_initial_timestamp=None)
     result = model.transcribe(path, **translate_options)
+    result = result.to_dict()
 
     logger.info("Prediction done!!"); logger.info(f"Type of the result: {type(result)}") 
     logger.info(f"Original Output: \n{result}")
