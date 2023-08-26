@@ -39,12 +39,12 @@ def handler(context: dict, request: Request) -> Response:
     result = model.transcribe(path, **translate_options)
     print(result)
     print(type(result))
-    
+
     os.remove(path)
 
 
     return Response(
-        json = {"outputs": json.dumps(result)}, 
+        json = {"outputs": result}, 
         status=200
     )
 
