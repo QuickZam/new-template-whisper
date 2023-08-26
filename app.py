@@ -41,7 +41,7 @@ def handler(context: dict, request: Request) -> Response:
 
 
     return Response(
-        json = {"outputs": result[0]}, 
+        json = {"outputs": result}, 
         status=200
     )
 
