@@ -37,6 +37,9 @@ def handler(context: dict, request: Request) -> Response:
     # translate_options = dict(task="translate", suppress_silence=True, ts_num=16, lower_quantile=0.05, lower_threshold=0.1)4
     translate_options = dict(task="translate",max_initial_timestamp=None)
     result = model.transcribe(path, **translate_options)
+    print(result)
+    print(type(result))
+    
     os.remove(path)
 
 
