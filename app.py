@@ -82,7 +82,7 @@ def handler(context: dict, request: Request) -> Response:
     result = model.transcribe(path, **translate_options)
     result = result.to_dict()
 
-    outs = result['outputs']
+    outs = result
     all_prob = [  np.exp(i["avg_logprob"]) * 100 for i in outs['segments']]
     all_prob = ','.join([str(i) for i in all_prob])
 
