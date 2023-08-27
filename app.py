@@ -6,7 +6,7 @@ from datetime import timedelta
 import torch, whisper, os, base64, urllib.request, json
 import numpy as np 
 import base64
-import requests
+import requests, sys
 
 
 app = Potassium("my_app")
@@ -69,43 +69,56 @@ def handler(context: dict, request: Request) -> Response:
     #Grabbing the model
     model = context.get("model")
 
-    if 'tinyurl' in link: 
-        path = urllib.request.urlretrieve(link, f"{link.split('/')[-1]}.mp4")[0]
+    try: 
 
-    else:
-        yt = YouTube(link)
-        path = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first().download()
-        logger.info("It's youtube video!! ")
+        if 'tinyurl' in link: 
+            path = urllib.request.urlretrieve(link, f"{link.split('/')[-1]}.mp4")[0]
 
-    # translate_options = dict(task="translate", suppress_silence=True, ts_num=16, lower_quantile=0.05, lower_threshold=0.1)4
-    translate_options = dict(task="translate",max_initial_timestamp=None)
-    result = model.transcribe(path, **translate_options)
-    result = result.to_dict()
+        else:
+            yt = YouTube(link)
+            path = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first().download()
+            logger.info("It's youtube video!! ")
 
-    outs = result
-    all_prob = [  np.exp(i["avg_logprob"]) * 100 for i in outs['segments']]
-    all_prob = ','.join([str(i) for i in all_prob])
+        # translate_options = dict(task="translate", suppress_silence=True, ts_num=16, lower_quantile=0.05, lower_threshold=0.1)4
+        translate_options = dict(task="translate",max_initial_timestamp=None)
+        result = model.transcribe(path, **translate_options)
+        result = result.to_dict()
 
-    out = create_subtitle(outs)
+        outs = result
+        all_prob = [  np.exp(i["avg_logprob"]) * 100 for i in outs['segments']]
+        all_prob = ','.join([str(i) for i in all_prob])
 
-    logger.info("The output is created and it's preparing to send to bubble io!")
+        out = create_subtitle(outs)
 
-    mp3 = base64.b64encode(bytes(str(out), 'utf-8'))
-    payload={'file': mp3, 'Email': email, 'youtube_title': youtube_title, 'status':'Success', 'confidence' : all_prob }  
+        logger.info("The output is created and it's preparing to send to bubble io!")
 
-    logger.info("Payload is Ready! ")
+        mp3 = base64.b64encode(bytes(str(out), 'utf-8'))
+        payload={'file': mp3, 'Email': email, 'youtube_title': youtube_title, 'status':'Success', 'confidence' : all_prob }  
 
-    response = requests.request("PATCH", url, headers=headers, data=payload)
+        logger.info("Payload is Ready! ")
 
-    logger.info(f"Request status: {response}")
-    logger.info(f"payload: {payload}")
-    logger.info("Succesfully sent the file to bubble! Check in bubble")
-    logger.info('Work Finished ')
+        response = requests.request("PATCH", url, headers=headers, data=payload)
+
+        logger.info(f"Request status: {response}")
+        logger.info(f"payload: {payload}")
+        logger.info("Succesfully sent the file to bubble! Check in bubble")
+        logger.info('Work Finished ')
 
 
-    # send_webhook(url="http://localhost:8001", json={"outputs": outputs})
+        # send_webhook(url="http://localhost:8001", json={"outputs": outputs})
 
-    return
+        return
+
+    except Exception as e: 
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.info(f"\n{'*'*100}\nError Type: {exc_type},\nOriginal Error: {str(e)}\nLine Number: {exc_tb.tb_lineno}\n{'*'*100}\n")
+
+        payload = {'file': 'RXJyb3IgaW4gZmlsZSEg', 'Email': email, 'youtube_title':youtube_title, 'status': 'Failed'}
+
+        logger.info(f"File is not processed there are some error: {e}")
+        response = requests.request("PATCH", url, headers=headers, data=payload)
+
+        return str(e)
 
 def create_subtitle(data:dict) -> str:
     """ Takes the input as banana output and convert to youtube format"""
